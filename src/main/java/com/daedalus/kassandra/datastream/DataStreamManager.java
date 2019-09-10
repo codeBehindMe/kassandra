@@ -17,7 +17,11 @@ package com.daedalus.kassandra.datastream;
     If not, see <https://www.gnu.org/licenses/>.
  */
 
-import krpc.client.*;
+import krpc.client.Connection;
+import krpc.client.Stream;
+import krpc.client.RemoteObject;
+import krpc.client.RPCException;
+import krpc.client.StreamException;
 
 import java.util.HashMap;
 
