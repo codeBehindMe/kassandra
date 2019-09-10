@@ -88,16 +88,13 @@ public class Kassandra {
 
         Jsonifier j = new Jsonifier("i");
 
-        FileWriter fw = new FileWriter(j.getSessionId() + ".data");
-        try {
+        try (FileWriter fw = new FileWriter(j.getSessionId() + ".data")) {
             while (true) {
                 String output = j.mapToJsonString(dsc.getSnapshot());
                 System.out.println(output);
                 fw.write(output + "\n");
-                TimeUnit.MILLISECONDS.sleep(1000);
+                TimeUnit.MILLISECONDS.sleep(100);
             }
-        } finally {
-            fw.close();
         }
     }
 
