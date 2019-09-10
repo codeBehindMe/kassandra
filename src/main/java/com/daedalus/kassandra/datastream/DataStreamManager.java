@@ -30,8 +30,6 @@ public class DataStreamManager {
 
     private HashMap<String, Stream> streams = new HashMap<String, Stream>();
     private final Connection connection;
-    private Vessel vessel;
-    private ReferenceFrame referenceFrame;
 
     public DataStreamManager(Connection c) {
         this.connection = c;
