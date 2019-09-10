@@ -1,0 +1,104 @@
+package com.daedalus.kassandra;
+/*
+    This file is a part of kassandra
+    
+    kassandra is free software:
+    you can redistribute it and/or modify it under the terms of the GNU General
+    Public License as published by the Free Software Foundation, either version 3
+    of the License, or (at your option) any later version.
+
+    kassandra is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with kassandra.  
+    If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
+import com.daedalus.kassandra.exceptions.UnsupportedGameSceneException;
+import com.daedalus.kassandra.packs.DataStreamContext;
+import com.daedalus.kassandra.utilities.Jsonifier;
+import krpc.client.Connection;
+import krpc.client.services.KRPC;
+import krpc.client.services.SpaceCenter;
+import krpc.client.services.SpaceCenter.ReferenceFrame;
+import krpc.client.services.SpaceCenter.Vessel;
+
+import java.io.FileWriter;
+import java.util.concurrent.TimeUnit;
+
+public class Kassandra {
+    public static void main(String[] args) throws Exception {
+        manageConnection();
+    }
+
+    private static void manageConnection() throws Exception {
+        try {
+            Connection c = Connection.newInstance();
+
+            KRPC krpc = KRPC.newInstance(c);
+            manageGameScene(c, krpc);
+        } catch (Exception e) {
+            System.out.println("Could not connect to server, retrying");
+            TimeUnit.SECONDS.sleep(1);
+            manageConnection();
+        }
+    }
+
+    private static void manageGameScene(Connection c, KRPC krpc) throws Exception {
+        try {
+            KRPC.GameScene gc = krpc.getCurrentGameScene();
+            if (!gc.toString().equals("FLIGHT")) {
+                throw new UnsupportedGameSceneException();
+            }
+            startStream(c);
+        } catch (UnsupportedGameSceneException e) {
+            System.out.println("Not in supported game scene.");
+            TimeUnit.SECONDS.sleep(1);
+            manageGameScene(c, krpc);
+        }
+    }
+
+    private static void startStream(Connection c) throws Exception {
+        DataStreamContext dsc = new DataStreamContext(c);
+        SpaceCenter sc = SpaceCenter.newInstance(c);
+
+        Vessel activeVessel = sc.getActiveVessel();
+        ReferenceFrame frame = activeVessel.getOrbit().getBody().getReferenceFrame();
+        SpaceCenter.Flight flight = activeVessel.flight(frame);
+
+
+        dsc.addDataStream(activeVessel, "position", frame);
+        dsc.addDataStream(activeVessel, "velocity", frame);
+        dsc.addDataStream(activeVessel, "getName");
+        dsc.addDataStream(flight, "getMeanAltitude");
+        dsc.addDataStream(flight, "getSurfaceAltitude");
+        dsc.addDataStream(flight, "getElevation");
+        dsc.addDataStream(flight, "getHorizontalSpeed");
+        dsc.addDataStream(flight, "getVerticalSpeed");
+        dsc.addDataStream(flight, "getPitch");
+        dsc.addDataStream(flight, "getHeading");
+        dsc.addDataStream(flight, "getRetrograde");
+        dsc.addDataStream(flight, "getAtmosphereDensity");
+        dsc.addDataStream(flight, "getDynamicPressure");
+        dsc.addDataStream(activeVessel, "getSituation");
+
+        Jsonifier j = new Jsonifier("i");
+
+        FileWriter fw = new FileWriter(j.getSessionId() + ".data");
+        try {
+            while (true) {
+                String output = j.mapToJsonString(dsc.getSnapshot());
+                System.out.println(output);
+                fw.write(output + "\n");
+                TimeUnit.MILLISECONDS.sleep(1000);
+            }
+        } finally {
+            fw.close();
+        }
+    }
+
+}
