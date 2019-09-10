@@ -34,17 +34,17 @@ import java.util.concurrent.TimeUnit;
 
 public class Kassandra {
     public static void main(String[] args) throws Exception {
-        manageConnection();
+        connectionLoop();
     }
 
-    private static void manageConnection() throws Exception {
+    private static void connectionLoop() throws Exception {
         while (true) {
             Connection c = null;
             try {
                 c = Connection.newInstance();
 
                 KRPC krpc = KRPC.newInstance(c);
-                manageGameScene(c, krpc);
+                gameSceneLoop(c, krpc);
             } catch (RPCException | ConnectException | RuntimeException e) {
                 if (c != null) {
                     c.close();
@@ -55,7 +55,7 @@ public class Kassandra {
         }
     }
 
-    private static void manageGameScene(Connection c, KRPC krpc) throws Exception {
+    private static void gameSceneLoop(Connection c, KRPC krpc) throws Exception {
         while (true) {
             try {
                 KRPC.GameScene gc = krpc.getCurrentGameScene();
