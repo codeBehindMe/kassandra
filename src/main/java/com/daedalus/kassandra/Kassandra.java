@@ -94,7 +94,7 @@ public class Kassandra {
         dsc.addDataStream(flight, "getDynamicPressure");
         dsc.addDataStream(activeVessel, "getSituation");
 
-        Jsonifier j = new Jsonifier("i");
+        Jsonifier j = new Jsonifier("0-0");
 
         try (FileWriter fw = new FileWriter(j.getSessionId() + ".data")) {
             while (true) {
