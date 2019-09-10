@@ -19,7 +19,7 @@ package com.daedalus.kassandra;
 
 
 import com.daedalus.kassandra.exceptions.UnsupportedGameSceneException;
-import com.daedalus.kassandra.packs.DataStreamContext;
+import com.daedalus.kassandra.datastream.DataStreamManager;
 import com.daedalus.kassandra.utilities.Jsonifier;
 import krpc.client.Connection;
 import krpc.client.services.KRPC;
@@ -63,7 +63,7 @@ public class Kassandra {
     }
 
     private static void startStream(Connection c) throws Exception {
-        DataStreamContext dsc = new DataStreamContext(c);
+        DataStreamManager dsc = new DataStreamManager(c);
         SpaceCenter sc = SpaceCenter.newInstance(c);
 
         Vessel activeVessel = sc.getActiveVessel();
