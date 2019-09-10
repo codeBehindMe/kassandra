@@ -18,16 +18,19 @@ package com.daedalus.kassandra;
  */
 
 
-import com.daedalus.kassandra.exceptions.UnsupportedGameSceneException;
 import com.daedalus.kassandra.datastream.DataStreamManager;
+import com.daedalus.kassandra.exceptions.UnsupportedGameSceneException;
 import com.daedalus.kassandra.utilities.Jsonifier;
 import krpc.client.Connection;
+import krpc.client.ConnectionException;
+import krpc.client.RPCException;
 import krpc.client.services.KRPC;
 import krpc.client.services.SpaceCenter;
 import krpc.client.services.SpaceCenter.ReferenceFrame;
 import krpc.client.services.SpaceCenter.Vessel;
 
 import java.io.FileWriter;
+import java.net.ConnectException;
 import java.util.concurrent.TimeUnit;
 
 public class Kassandra {
@@ -36,29 +39,35 @@ public class Kassandra {
     }
 
     private static void manageConnection() throws Exception {
-        try {
-            Connection c = Connection.newInstance();
+        while (true) {
+            Connection c = null;
+            try {
+                c = Connection.newInstance();
 
-            KRPC krpc = KRPC.newInstance(c);
-            manageGameScene(c, krpc);
-        } catch (Exception e) {
-            System.out.println("Could not connect to server, retrying");
-            TimeUnit.SECONDS.sleep(1);
-            manageConnection();
+                KRPC krpc = KRPC.newInstance(c);
+                manageGameScene(c, krpc);
+            } catch (RPCException | ConnectException | RuntimeException e) {
+                if (c != null) {
+                    c.close();
+                }
+                System.out.println("Could not connect to server, retrying");
+                TimeUnit.SECONDS.sleep(1);
+            }
         }
     }
 
     private static void manageGameScene(Connection c, KRPC krpc) throws Exception {
-        try {
-            KRPC.GameScene gc = krpc.getCurrentGameScene();
-            if (!gc.toString().equals("FLIGHT")) {
-                throw new UnsupportedGameSceneException();
+        while (true) {
+            try {
+                KRPC.GameScene gc = krpc.getCurrentGameScene();
+                if (!gc.toString().equals("FLIGHT")) {
+                    throw new UnsupportedGameSceneException();
+                }
+                startStream(c);
+            } catch (UnsupportedGameSceneException e) {
+                System.out.println("Not in supported game scene.");
+                TimeUnit.SECONDS.sleep(1);
             }
-            startStream(c);
-        } catch (UnsupportedGameSceneException e) {
-            System.out.println("Not in supported game scene.");
-            TimeUnit.SECONDS.sleep(1);
-            manageGameScene(c, krpc);
         }
     }
 

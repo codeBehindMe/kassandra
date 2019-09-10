@@ -28,7 +28,7 @@ import java.util.HashMap;
  */
 public class DataStreamManager {
 
-    private HashMap<String, Stream> streams = new HashMap<String, Stream>();
+    private final HashMap<String, Stream> streams = new HashMap<String, Stream>();
     private final Connection connection;
 
     public DataStreamManager(Connection c) {
