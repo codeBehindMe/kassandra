@@ -18,8 +18,6 @@ package com.daedalus.kassandra.datastream;
  */
 
 import krpc.client.*;
-import krpc.client.services.SpaceCenter.ReferenceFrame;
-import krpc.client.services.SpaceCenter.Vessel;
 
 import java.util.HashMap;
 

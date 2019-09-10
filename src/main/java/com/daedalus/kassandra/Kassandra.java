@@ -22,7 +22,6 @@ import com.daedalus.kassandra.datastream.DataStreamManager;
 import com.daedalus.kassandra.exceptions.UnsupportedGameSceneException;
 import com.daedalus.kassandra.utilities.Jsonifier;
 import krpc.client.Connection;
-import krpc.client.ConnectionException;
 import krpc.client.RPCException;
 import krpc.client.services.KRPC;
 import krpc.client.services.SpaceCenter;
