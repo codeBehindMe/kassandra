@@ -23,6 +23,7 @@ import krpc.client.RemoteObject;
 import krpc.client.RPCException;
 import krpc.client.StreamException;
 
+import java.time.Instant;
 import java.util.HashMap;
 
 /**
@@ -43,6 +44,7 @@ public class DataStreamManager {
 
     public HashMap<String, Object> getSnapshot() throws RuntimeException{
         HashMap<String, Object> streamValues = new HashMap<String, Object>();
+        streamValues.put("epochTimeMilli", Instant.now().toEpochMilli());
         this.streams.forEach((methodName, stream) -> {
             try {
                 streamValues.put(methodName, stream.get());
