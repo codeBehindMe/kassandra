@@ -29,7 +29,10 @@ import krpc.client.services.SpaceCenter.ReferenceFrame;
 import krpc.client.services.SpaceCenter.Vessel;
 
 import java.io.FileWriter;
+import java.io.IOException;
 import java.net.ConnectException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Kassandra {
@@ -97,13 +100,23 @@ public class Kassandra {
         Jsonifier j = new Jsonifier("0-0");
 
         try (FileWriter fw = new FileWriter(j.getSessionId() + ".data")) {
-            while (true) {
+            pollServer(dsc,fw,j);
+        }
+    }
+
+    private static void pollServer(DataStreamManager dsc, FileWriter fw, Jsonifier j) {
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        executorService.scheduleAtFixedRate(new Runnable() {
+            public void run() {
                 String output = j.mapToJsonString(dsc.getSnapshot());
                 System.out.println(output);
-                fw.write(output + "\n");
-                TimeUnit.MILLISECONDS.sleep(100);
+                try{
+                    fw.write(output + "\n");
+                } catch (IOException e){
+                    executorService.shutdown();
+                }
             }
-        }
+        }, 0, 100, TimeUnit.MILLISECONDS);
     }
 
 }
