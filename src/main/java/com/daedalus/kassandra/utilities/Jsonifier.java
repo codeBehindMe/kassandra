@@ -28,11 +28,24 @@ public class Jsonifier {
     private final Gson gson;
     private final String buildId;
 
+    private static String createUUID() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
 
     public Jsonifier(String buildId) {
-        this.sessionId = UUID.randomUUID().toString().replace("-", "");
+        this.sessionId = createUUID();
         this.gson = new Gson();
         this.buildId = buildId;
+    }
+
+    public Jsonifier(String buildId, String sessionId) {
+        this.sessionId = sessionId;
+        this.buildId = buildId;
+        this.gson = new Gson();
+    }
+
+    public static String createRandomSessionID() {
+        return createUUID();
     }
 
     public String getSessionId() {
