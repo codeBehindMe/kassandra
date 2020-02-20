@@ -112,7 +112,7 @@ public class Kassandra {
                 System.out.println(output);
                 try{
                     fw.write(output + "\n");
-                } catch (IOException e){
+                } catch (Exception e){
                     executorService.shutdown();
                 }
             }
