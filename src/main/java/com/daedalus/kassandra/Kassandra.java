@@ -100,7 +100,7 @@ public class Kassandra {
         Jsonifier j = new Jsonifier("0-0");
 
         try (FileWriter fw = new FileWriter(j.getSessionId() + ".data")) {
-            pollServer(dsc,fw,j);
+            pollServer(dsc, fw, j);
         }
     }
 
